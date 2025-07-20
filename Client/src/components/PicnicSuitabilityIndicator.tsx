@@ -2,7 +2,6 @@ import {
   Box,
   Chip,
   Typography,
-  useTheme,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -28,8 +27,6 @@ const PicnicSuitabilityIndicator = ({
   condition,
   showDetails = false,
 }: Props) => {
-  const theme = useTheme();
-
   // Map API condition type to UI elements
   const getIcon = (type?: string | null) => {
     switch (type?.toLowerCase()) {
