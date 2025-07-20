@@ -83,10 +83,6 @@ const PicnicSuitabilityIndicator = ({
                     <Box
                       sx={{
                         ...styles.bullet,
-                        backgroundColor:
-                          index === 0
-                            ? getConditionColor(condition.type)
-                            : theme.palette.divider,
                       }}
                     />
                   </ListItemIcon>
@@ -147,5 +143,6 @@ const styles = {
     width: 6,
     height: 6,
     borderRadius: "50%",
+    backgroundColor: "white",
   },
 };

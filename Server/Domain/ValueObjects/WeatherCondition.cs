@@ -107,21 +107,21 @@ public record WeatherCondition
         // Ideal range: 20-25°C
         if (avgTemp >= 20 && avgTemp <= 25)
         {
-            reasons.Add($"Perfect temperature range ({avgTemp:F1}°C)");
+            reasons.Add("Perfect temperature range");
             return 30;
         }
         // Acceptable range: 15-30°C
         else if (avgTemp >= 15 && avgTemp <= 30)
         {
-            reasons.Add($"Acceptable temperature ({avgTemp:F1}°C)");
+            reasons.Add("Acceptable temperature");
             return 20;
         }
         else
         {
             if (avgTemp < 15)
-                reasons.Add($"Too cold for comfortable outdoor activities ({avgTemp:F1}°C)");
+                reasons.Add("Too cold for comfortable outdoor activities");
             else
-                reasons.Add($"Too hot for comfortable outdoor activities ({avgTemp:F1}°C)");
+                reasons.Add("Too hot for comfortable outdoor activities");
             return 5;
         }
     }
