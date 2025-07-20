@@ -4,7 +4,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { theme } from "./theme";
 import WeatherDashboard from "./components/WeatherDashboard";
-import { PreferencesProvider } from "./contexts/PreferencesContext";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -12,16 +11,14 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <PreferencesProvider>
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <CssBaseline />
-            <Box sx={styles.container}>
-              <WeatherDashboard />
-            </Box>
-          </LocalizationProvider>
-        </ThemeProvider>
-      </PreferencesProvider>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline />
+          <Box sx={styles.container}>
+            <WeatherDashboard />
+          </Box>
+        </LocalizationProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

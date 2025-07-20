@@ -4,7 +4,6 @@
  */
 
 export * from './weather';
-export * from './preferences';
 
 // Future custom type exports can be added here
 // export * from './ui';

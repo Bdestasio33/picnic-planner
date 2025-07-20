@@ -6,10 +6,10 @@ import dayjs from "dayjs";
 import PicnicCalendar, {
   PicnicCalendarTestIds,
 } from "../../components/PicnicCalendar";
-import { PreferencesProvider } from "../../contexts/PreferencesContext";
+
 import type { LocationInfo, WeatherForecastDto } from "../../types";
 
-// Mock localStorage for PreferencesProvider
+// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -52,25 +52,16 @@ vi.mock("../../utils/conditionColors", () => ({
         return "#2196f3";
     }
   },
-  getConditionColorFromPreferences: (
-    forecast: any,
-    preferences: any
-  ): string => {
-    // Simple mock that returns ideal color for any forecast/preferences
-    return "#4caf50";
-  },
 }));
 
 // Mock theme for Material UI components
 const theme = createTheme();
 
-// Helper component to wrap PicnicCalendar with theme and preferences
+// Helper component to wrap PicnicCalendar with theme
 const PicnicCalendarWrapper = (props: any) => (
-  <PreferencesProvider>
-    <ThemeProvider theme={theme}>
-      <PicnicCalendar {...props} />
-    </ThemeProvider>
-  </PreferencesProvider>
+  <ThemeProvider theme={theme}>
+    <PicnicCalendar {...props} />
+  </ThemeProvider>
 );
 
 describe("PicnicCalendar", () => {

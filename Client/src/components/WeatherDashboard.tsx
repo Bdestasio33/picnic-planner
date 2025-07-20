@@ -2,23 +2,20 @@ import { Paper, Typography, Box, Stack, Skeleton, Button } from "@mui/material";
 import {
   LocationOn as LocationIcon,
   Edit as EditIcon,
-  Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { useGetApiWeatherForecast } from "../hooks/weather/weather";
 import PicnicCalendar from "./PicnicCalendar";
 import CitySelectionDialog from "./CitySelectionDialog";
-import PreferencesDialog from "./PreferencesDialog";
 
 const WeatherDashboard = () => {
   // Location state management
   const [location, setLocation] = useState({
     city: "New York",
-    state: "NY",
+    state: "",
     country: "USA",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [preferencesOpen, setPreferencesOpen] = useState(false);
 
   // API call with dynamic location
   const { data, isLoading, error } = useGetApiWeatherForecast({
@@ -132,26 +129,15 @@ const WeatherDashboard = () => {
                 {data?.location?.name}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<SettingsIcon />}
-                onClick={() => setPreferencesOpen(true)}
-                data-testid={WeatherDashboardTestIds.settingsButton}
-              >
-                Settings
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<EditIcon />}
-                onClick={() => setDialogOpen(true)}
-                data-testid={WeatherDashboardTestIds.changeLocationButton}
-              >
-                Change Location
-              </Button>
-            </Stack>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<EditIcon />}
+              onClick={() => setDialogOpen(true)}
+              data-testid={WeatherDashboardTestIds.changeLocationButton}
+            >
+              Change Location
+            </Button>
           </Stack>
         </Paper>
 
@@ -215,12 +201,6 @@ const WeatherDashboard = () => {
         currentLocation={location}
         data-testid={WeatherDashboardTestIds.citySelectionDialog}
       />
-
-      {/* Preferences Dialog */}
-      <PreferencesDialog
-        open={preferencesOpen}
-        onClose={() => setPreferencesOpen(false)}
-      />
     </Box>
   );
 };
@@ -276,7 +256,7 @@ export const WeatherDashboardTestIds = {
   locationPaper: "weather-dashboard-location-paper",
   locationIcon: "weather-dashboard-location-icon",
   locationName: "weather-dashboard-location-name",
-  settingsButton: "weather-dashboard-settings-button",
+
   changeLocationButton: "weather-dashboard-change-location-button",
   picnicCalendar: "weather-dashboard-picnic-calendar",
   detailsPaper: "weather-dashboard-details-paper",

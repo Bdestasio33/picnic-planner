@@ -3,10 +3,10 @@ import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import PicnicSuitabilityIndicator from "../../components/PicnicSuitabilityIndicator";
-import { PreferencesProvider } from "../../contexts/PreferencesContext";
+
 import type { WeatherConditionDto } from "../../types";
 
-// Mock localStorage for PreferencesProvider
+// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -40,13 +40,11 @@ vi.mock("../../utils/conditionColors", () => ({
 // Mock theme for Material UI components
 const theme = createTheme();
 
-// Helper component to wrap PicnicSuitabilityIndicator with theme and preferences
+// Helper component to wrap PicnicSuitabilityIndicator with theme
 const PicnicSuitabilityIndicatorWrapper = (props: any) => (
-  <PreferencesProvider>
-    <ThemeProvider theme={theme}>
-      <PicnicSuitabilityIndicator {...props} />
-    </ThemeProvider>
-  </PreferencesProvider>
+  <ThemeProvider theme={theme}>
+    <PicnicSuitabilityIndicator {...props} />
+  </ThemeProvider>
 );
 
 describe("PicnicSuitabilityIndicator", () => {

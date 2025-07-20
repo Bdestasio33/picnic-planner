@@ -25,7 +25,7 @@ import type {
   HistoricalWeatherResponseDto,
   ProblemDetails,
   WeatherForecastResponseDto,
-} from "../../types";
+} from "../../types/generated";
 
 import { customInstance } from "../../services/api-client";
 

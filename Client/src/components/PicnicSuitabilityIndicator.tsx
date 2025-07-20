@@ -17,31 +17,18 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CancelIcon from "@mui/icons-material/Cancel";
 import InfoIcon from "@mui/icons-material/Info";
 import { getConditionColor } from "../utils/conditionColors";
-import { calculateDetailedCondition } from "../utils/conditionCalculator";
-import { usePreferences } from "../contexts/PreferencesContext";
-import type { WeatherConditionDto, WeatherForecastDto } from "../types";
+import type { WeatherConditionDto } from "../types";
 
 interface Props {
   condition: WeatherConditionDto;
-  forecast?: WeatherForecastDto; // Add forecast data for preferences calculation
   showDetails?: boolean;
-  useUserPreferences?: boolean; // Flag to use preferences calculation
 }
 
 const PicnicSuitabilityIndicator = ({
   condition,
-  forecast,
   showDetails = false,
-  useUserPreferences = false,
 }: Props) => {
   const theme = useTheme();
-  const { preferences } = usePreferences();
-
-  // Calculate condition based on user preferences if enabled and forecast data is available
-  const effectiveCondition =
-    useUserPreferences && forecast
-      ? calculateDetailedCondition(forecast, preferences)
-      : condition;
 
   // Map API condition type to UI elements
   const getIcon = (type?: string | null) => {
@@ -74,44 +61,42 @@ const PicnicSuitabilityIndicator = ({
           }}
         />
         <Typography variant="caption" sx={styles.scoreText}>
-          {effectiveCondition.score || 0}/100
+          {condition.score || 0}/100
         </Typography>
       </Box>
 
-      {showDetails &&
-        effectiveCondition.reasons &&
-        effectiveCondition.reasons.length > 0 && (
-          <Accordion sx={styles.accordion}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              sx={styles.accordionSummary}
-            >
-              <Typography variant="caption" color="text.secondary">
-                View detailed conditions
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <List dense>
-                {effectiveCondition.reasons?.map((reason, index) => (
-                  <ListItem key={index} sx={styles.listItem}>
-                    <ListItemIcon sx={styles.listItemIcon}>
-                      <Box
-                        sx={{
-                          ...styles.bullet,
-                          backgroundColor:
-                            index === 0
-                              ? getConditionColor(condition.type)
-                              : theme.palette.divider,
-                        }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText primary={reason} />
-                  </ListItem>
-                ))}
-              </List>
-            </AccordionDetails>
-          </Accordion>
-        )}
+      {showDetails && condition.reasons && condition.reasons.length > 0 && (
+        <Accordion sx={styles.accordion}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={styles.accordionSummary}
+          >
+            <Typography variant="caption" color="text.secondary">
+              View detailed conditions
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List dense>
+              {condition.reasons?.map((reason, index) => (
+                <ListItem key={index} sx={styles.listItem}>
+                  <ListItemIcon sx={styles.listItemIcon}>
+                    <Box
+                      sx={{
+                        ...styles.bullet,
+                        backgroundColor:
+                          index === 0
+                            ? getConditionColor(condition.type)
+                            : theme.palette.divider,
+                      }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={reason} />
+                </ListItem>
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      )}
     </Box>
   );
 };

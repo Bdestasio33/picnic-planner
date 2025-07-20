@@ -5,10 +5,10 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import WeatherDashboard, {
   WeatherDashboardTestIds,
 } from "../../components/WeatherDashboard";
-import { PreferencesProvider } from "../../contexts/PreferencesContext";
+
 import type { WeatherForecastResponseDto } from "../../types";
 
-// Mock localStorage for PreferencesProvider
+// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -58,13 +58,11 @@ vi.mock("../../components/CitySelectionDialog", () => ({
 // Mock theme for Material UI components
 const theme = createTheme();
 
-// Helper component to wrap WeatherDashboard with theme and preferences
+// Helper component to wrap WeatherDashboard with theme
 const WeatherDashboardWrapper = () => (
-  <PreferencesProvider>
-    <ThemeProvider theme={theme}>
-      <WeatherDashboard />
-    </ThemeProvider>
-  </PreferencesProvider>
+  <ThemeProvider theme={theme}>
+    <WeatherDashboard />
+  </ThemeProvider>
 );
 
 describe("WeatherDashboard", () => {

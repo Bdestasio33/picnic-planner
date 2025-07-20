@@ -7,12 +7,8 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import type { PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import dayjs, { Dayjs } from "dayjs";
 import type { LocationInfo, WeatherForecastDto } from "../types";
-import {
-  getConditionColor,
-  getConditionColorFromPreferences,
-} from "../utils/conditionColors";
+import { getConditionColor } from "../utils/conditionColors";
 import { WeatherDetailDialog } from "./WeatherDetailDialog";
-import { usePreferences } from "../contexts/PreferencesContext";
 
 interface DayData {
   forecast: WeatherForecastDto;
@@ -88,7 +84,6 @@ const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const { preferences } = usePreferences();
 
   // Create a map of date string to weather data for fast lookup
   const weatherMap = useMemo(() => {
@@ -97,12 +92,12 @@ const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
       const dateKey = dayjs(forecast.date).format("YYYY-MM-DD");
       map[dateKey] = {
         forecast,
-        // Use user preferences to calculate condition color
-        color: getConditionColorFromPreferences(forecast, preferences),
+        // Use API-provided condition colors
+        color: getConditionColor(forecast.condition?.type),
       };
     });
     return map;
-  }, [weatherData, preferences]);
+  }, [weatherData]);
 
   // Find the selected forecast data
   const selectedForecast = useMemo(() => {
@@ -149,9 +144,7 @@ const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
               const dayData = weatherMap[dateKey];
               return {
                 weatherData: dayData,
-                picnicColor: dayData
-                  ? getConditionColor(dayData.forecast.condition?.type)
-                  : undefined,
+                picnicColor: dayData?.color,
               } as any;
             },
           }}
