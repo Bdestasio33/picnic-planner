@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using PicnicPlanner.Api.Domain.Interfaces;
 using PicnicPlanner.Api.Infrastructure.ExternalServices;
 
@@ -29,12 +30,28 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Configure HTTP client for weather service
-builder.Services.AddHttpClient<IWeatherService, OpenMeteoWeatherService>(client =>
+// Add memory caching services
+builder.Services.AddMemoryCache();
+
+// Configure HTTP client for weather service (inner service)
+builder.Services.AddHttpClient<OpenMeteoWeatherService>(client =>
 {
     client.BaseAddress = new Uri("https://api.open-meteo.com/");
     client.Timeout = TimeSpan.FromSeconds(30);
     client.DefaultRequestHeaders.Add("User-Agent", "PicnicPlanner/1.0");
+});
+
+// Register the cached weather service decorator
+builder.Services.AddScoped<IWeatherService, CachedWeatherService>(serviceProvider =>
+{
+    var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient(nameof(OpenMeteoWeatherService));
+    var openMeteoService = new OpenMeteoWeatherService(httpClient);
+
+    var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
+    var logger = serviceProvider.GetRequiredService<ILogger<CachedWeatherService>>();
+
+    return new CachedWeatherService(openMeteoService, memoryCache, logger);
 });
 
 // Configure HTTP client for geocoding service
