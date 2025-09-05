@@ -6,7 +6,6 @@ import PicnicSuitabilityIndicator from "../../components/PicnicSuitabilityIndica
 
 import type { WeatherConditionDto } from "../../types";
 
-// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -21,7 +20,6 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-// Mock the getConditionColor utility
 vi.mock("../../utils/conditionColors", () => ({
   getConditionColor: (type?: string | null): string => {
     switch (type?.toLowerCase()) {
@@ -37,7 +35,6 @@ vi.mock("../../utils/conditionColors", () => ({
   },
 }));
 
-// Mock theme for Material UI components
 const theme = createTheme();
 
 // Helper component to wrap PicnicSuitabilityIndicator with theme

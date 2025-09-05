@@ -85,13 +85,11 @@ const HistoricalWeatherTable = ({
 
   return (
     <Box sx={{ mt: 2 }} data-testid={HistoricalWeatherTableTestIds.container}>
-      {/* Summary Statistics */}
       <HistoricalWeatherTableSummary
         historicalData={historicalData}
         temperatureUnit={temperatureUnit}
         data-testid={HistoricalWeatherTableTestIds.summaryComponent}
       />
-      {/* Yearly Data Table */}
       <TableContainer
         component={Paper}
         elevation={1}

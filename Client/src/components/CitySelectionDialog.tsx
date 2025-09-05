@@ -72,7 +72,6 @@ const CitySelectionDialog = ({
 
   const handleSave = () => {
     const data = getValues();
-    // Save the location
     onSave({
       city: data.city.trim(),
       state: data.state.trim() || undefined,
@@ -83,7 +82,6 @@ const CitySelectionDialog = ({
   };
 
   const handleClose = () => {
-    // Reset form to current values
     reset({
       city: currentLocation?.city || "",
       state: currentLocation?.state || "",

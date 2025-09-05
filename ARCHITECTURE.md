@@ -1,5 +1,221 @@
 # ☀️ Weather Picnic Planner - Architecture Documentation
 
+## 🚀 Getting Started
+
+### Prerequisites
+
+**Required Software:**
+
+- **.NET 8 SDK** (or later) - [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **Node.js 18+** - [Download here](https://nodejs.org/)
+- **Yarn** package manager - Install with `npm install -g yarn`
+
+**Optional but Recommended:**
+
+- **Visual Studio Code** with C# and React extensions
+- **Postman** or similar API testing tool
+
+### Quick Start Guide
+
+**1. Clone and Navigate**
+
+```bash
+git clone <repository-url>
+cd picnic-planner
+```
+
+**2. Backend Setup**
+
+```bash
+cd Server
+dotnet restore
+dotnet build
+dotnet run
+```
+
+_Backend will start on http://localhost:5001_
+
+**3. Frontend Setup (New Terminal)**
+
+```bash
+cd Client
+yarn install
+yarn dev
+```
+
+_Frontend will start on http://localhost:5173_
+
+**4. Verify Setup**
+
+- Backend API: http://localhost:5001 (Swagger UI)
+- Frontend App: http://localhost:5173
+- Health Check: http://localhost:5001/health
+
+### Development Workflow
+
+**Backend Development:**
+
+```bash
+cd Server
+dotnet watch run    # Auto-reload on changes
+```
+
+**Frontend Development:**
+
+```bash
+cd Client
+yarn dev           # Hot reload enabled
+yarn test          # Run tests
+yarn build         # Production build
+```
+
+**API Code Generation:**
+
+```bash
+cd Client
+yarn generate-api  # Regenerate TypeScript types from OpenAPI
+```
+
+### Environment Configuration
+
+**Backend Configuration:**
+
+- Port: 5001 (configured in `Properties/launchSettings.json`)
+- Environment: Development (default)
+- API Documentation: Available at root URL when running
+
+**Frontend Configuration:**
+
+- Port: 5173 (Vite default)
+- API Base URL: http://localhost:5001 (configured in `api-client.ts`)
+- Hot Module Replacement: Enabled
+
+### Common Issues & Solutions
+
+**Port Already in Use (Backend):**
+
+```bash
+# Find and kill process using port 5001
+lsof -ti :5001 | xargs kill -9
+# Or use different port
+dotnet run --urls "http://localhost:5002"
+```
+
+_Note: Port 5000 is often used by macOS AirPlay/AirTunes, so we use 5001 by default_
+
+**API Connection Issues:**
+
+- Ensure backend is running on port 5001
+- Check CORS configuration in `Program.cs`
+- Verify `VITE_API_BASE_URL` in frontend matches backend port
+- Test backend directly: `curl http://localhost:5001/health`
+
+**Package/Dependency Issues:**
+
+```bash
+# Backend
+cd Server && dotnet clean && dotnet restore
+
+# Frontend
+cd Client && rm -rf node_modules && yarn install
+```
+
+### Project Structure Quick Reference
+
+```
+picnic-planner/
+├── Server/                    # .NET 8 Web API
+│   ├── Domain/               # Business logic & entities
+│   ├── Application/          # Use cases & handlers (MediatR)
+│   ├── Infrastructure/       # External API integrations
+│   ├── Presentation/         # Controllers & DTOs
+│   └── Program.cs           # Application entry point
+│
+└── Client/                   # React 19 + TypeScript
+    ├── src/
+    │   ├── components/       # React components
+    │   ├── hooks/           # Custom hooks & API client
+    │   ├── services/        # API configuration
+    │   └── types/           # TypeScript type definitions
+    └── package.json
+```
+
+### Testing & Verification
+
+**Backend API Testing:**
+
+```bash
+# Test health endpoint
+curl http://localhost:5001/health
+
+# View Swagger documentation
+open http://localhost:5001
+
+# Test weather endpoints (examples)
+curl "http://localhost:5001/api/weather/forecast?city=Seattle&state=WA"
+curl "http://localhost:5001/api/weather/historical?city=Seattle&state=WA&date=2024-01-01"
+```
+
+**Frontend Testing:**
+
+```bash
+cd Client
+yarn test              # Run unit tests
+yarn test-coverage     # Run tests with coverage
+yarn build             # Test production build
+```
+
+### Developer Tools & Tips
+
+**Useful Commands:**
+
+```bash
+# Backend hot reload (recommended for development)
+cd Server && dotnet watch run
+
+# Generate API client types (after backend changes)
+cd Client && yarn generate-api
+
+# Check what's running on ports
+lsof -i :5001  # Backend
+lsof -i :5173  # Frontend
+
+# View backend logs in detail
+cd Server && dotnet run --verbosity detailed
+```
+
+**IDE Setup:**
+
+- **VS Code**: Install C# Dev Kit and ES7+ React/Redux extensions
+- **JetBrains Rider**: Full C# and TypeScript support out of the box
+- **Backend Debugging**: Set breakpoints in .cs files and run with F5
+- **Frontend Debugging**: Use browser dev tools or VS Code debugger
+
+### Production Deployment Notes
+
+**Backend:**
+
+```bash
+cd Server
+dotnet publish -c Release -o publish
+# Deploy publish/ folder to your hosting service
+```
+
+**Frontend:**
+
+```bash
+cd Client
+yarn build
+# Deploy dist/ folder to static hosting (Vercel, Netlify, etc.)
+```
+
+**Environment Variables for Production:**
+
+- Backend: Set `ASPNETCORE_ENVIRONMENT=Production`
+- Frontend: Set `VITE_API_BASE_URL` to your production API URL
+
+---
+
 ## 🏗️ System Overview
 
 A full-stack weather application built with **Clean Architecture** and **Domain-Driven Design** principles, featuring a .NET 8 API backend and React 19 frontend for intelligent picnic planning.

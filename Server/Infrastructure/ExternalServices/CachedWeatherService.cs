@@ -134,7 +134,7 @@ public class CachedWeatherService : IWeatherService
     /// </summary>
     private static string GenerateForecastCacheKey(Location location)
     {
-        // Round coordinates to 2 decimal places to avoid cache misses from tiny differences
+        // Round to avoid cache misses from tiny coordinate differences
         var lat = Math.Round(location.Latitude, 2);
         var lng = Math.Round(location.Longitude, 2);
         return $"forecast:{lat}:{lng}";
@@ -145,7 +145,7 @@ public class CachedWeatherService : IWeatherService
     /// </summary>
     private static string GenerateHistoricalCacheKey(Location location, DateOnly date, int yearsBack)
     {
-        // Round coordinates to 2 decimal places to avoid cache misses from tiny differences
+        // Round to avoid cache misses from tiny coordinate differences
         var lat = Math.Round(location.Latitude, 2);
         var lng = Math.Round(location.Longitude, 2);
         return $"historical:{lat}:{lng}:{date:yyyy-MM-dd}:{yearsBack}";

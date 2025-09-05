@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -10,7 +10,6 @@ import {
   WeatherDetailDialogTestIds,
 } from "../../components/WeatherDetailDialog";
 import type { LocationInfo, WeatherForecastDto } from "../../types";
-import { TEMPERATURE_UNIT } from "../../types";
 
 // Mock the PicnicSuitabilityIndicator component
 vi.mock("../../components/PicnicSuitabilityIndicator", () => ({

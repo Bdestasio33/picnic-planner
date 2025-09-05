@@ -9,7 +9,6 @@ import PicnicCalendar, {
 
 import type { LocationInfo, WeatherForecastDto } from "../../types";
 
-// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -24,7 +23,6 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-// Mock the WeatherDetailDialog component
 vi.mock("../../components/WeatherDetailDialog", () => ({
   WeatherDetailDialog: ({ dialogOpen, handleCloseDialog }: any) => (
     <div data-testid="weather-detail-dialog-mock">
@@ -38,7 +36,6 @@ vi.mock("../../components/WeatherDetailDialog", () => ({
   ),
 }));
 
-// Mock the getConditionColor utility
 vi.mock("../../utils/conditionColors", () => ({
   getConditionColor: (type?: string | null): string => {
     switch (type?.toLowerCase()) {
@@ -54,7 +51,6 @@ vi.mock("../../utils/conditionColors", () => ({
   },
 }));
 
-// Mock theme for Material UI components
 const theme = createTheme();
 
 // Helper component to wrap PicnicCalendar with theme

@@ -5,7 +5,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { theme } from "./theme";
 import WeatherDashboard from "./components/WeatherDashboard";
 
-// Create a client
 const queryClient = new QueryClient();
 
 function App() {

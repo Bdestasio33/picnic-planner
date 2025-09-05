@@ -1,4 +1,5 @@
 using PicnicPlanner.Api.Domain.ValueObjects;
+using PicnicPlanner.Api.Domain.Interfaces;
 
 namespace PicnicPlanner.Api.Domain.Entities;
 
@@ -53,7 +54,7 @@ public class WeatherForecast
     public WeatherCondition Condition { get; private set; }
 
     /// <summary>
-    /// Initializes a new weather forecast
+    /// Initializes a new weather forecast with modular scoring
     /// </summary>
     /// <param name="date">The forecast date</param>
     /// <param name="maxTemperature">Maximum temperature in Celsius</param>
@@ -63,6 +64,7 @@ public class WeatherForecast
     /// <param name="humidity">Relative humidity (0-100)</param>
     /// <param name="windSpeed">Wind speed in km/h</param>
     /// <param name="windDirection">Wind direction in degrees (0-360)</param>
+    /// <param name="scoringService">The weather scoring service to use for condition assessment</param>
     public WeatherForecast(
         DateOnly date,
         decimal maxTemperature,
@@ -71,7 +73,8 @@ public class WeatherForecast
         decimal precipitationAmount,
         decimal humidity,
         decimal windSpeed,
-        decimal windDirection)
+        decimal windDirection,
+        IWeatherScoringService? scoringService = null)
     {
         Date = date;
         MaxTemperature = maxTemperature;
@@ -82,16 +85,21 @@ public class WeatherForecast
         WindSpeed = Math.Max(windSpeed, 0);
         WindDirection = Math.Clamp(windDirection, 0, 360);
 
-        // Automatically assess the weather condition with all available parameters
-        Condition = WeatherCondition.Assess(maxTemperature, minTemperature, precipitationChance, precipitationAmount, windSpeed, humidity);
+        // Assess the weather condition using the provided scoring service
+        Condition = scoringService != null
+            ? WeatherCondition.Assess(scoringService, maxTemperature, minTemperature, precipitationChance, precipitationAmount, windSpeed, humidity)
+            : WeatherCondition.Assess(maxTemperature, minTemperature, precipitationChance, precipitationAmount, windSpeed, humidity);
     }
 
     /// <summary>
-    /// Updates the weather condition assessment (useful if assessment logic changes)
+    /// Updates the weather condition assessment using the specified scoring service
     /// </summary>
-    public void UpdateCondition()
+    /// <param name="scoringService">The scoring service to use for reassessment</param>
+    public void UpdateCondition(IWeatherScoringService? scoringService = null)
     {
-        Condition = WeatherCondition.Assess(MaxTemperature, MinTemperature, PrecipitationChance, PrecipitationAmount, WindSpeed, Humidity);
+        Condition = scoringService != null
+            ? WeatherCondition.Assess(scoringService, MaxTemperature, MinTemperature, PrecipitationChance, PrecipitationAmount, WindSpeed, Humidity)
+            : WeatherCondition.Assess(MaxTemperature, MinTemperature, PrecipitationChance, PrecipitationAmount, WindSpeed, Humidity);
     }
 
     /// <summary>

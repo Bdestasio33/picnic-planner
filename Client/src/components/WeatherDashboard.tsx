@@ -2,22 +2,41 @@ import { Paper, Typography, Box, Stack, Skeleton, Button } from "@mui/material";
 import {
   LocationOn as LocationIcon,
   Edit as EditIcon,
+  Settings as SettingsIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetApiWeatherForecast } from "../hooks/weather/weather";
 import PicnicCalendar from "./PicnicCalendar";
 import CitySelectionDialog from "./CitySelectionDialog";
+import WeatherSettingsDialog, {
+  type WeatherScoringSettings,
+} from "./WeatherSettingsDialog";
 
 const WeatherDashboard = () => {
-  // Location state management
   const [location, setLocation] = useState({
     city: "New York",
     state: "",
     country: "USA",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [weatherSettings, setWeatherSettings] =
+    useState<WeatherScoringSettings | null>(null);
 
-  // API call with dynamic location
+  // Load settings from localStorage function
+  const loadSavedSettings = (): WeatherScoringSettings | null => {
+    const saved = localStorage.getItem("weatherScoringSettings");
+    return saved ? JSON.parse(saved) : null;
+  };
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const savedSettings = loadSavedSettings();
+    if (savedSettings) {
+      setWeatherSettings(savedSettings);
+    }
+  }, []);
+
   const { data, isLoading, error } = useGetApiWeatherForecast({
     City: location.city,
     State: location.state || undefined,
@@ -34,6 +53,16 @@ const WeatherDashboard = () => {
       state: newLocation.state || "",
       country: newLocation.country || "",
     });
+  };
+
+  const handleSettingsChange = (settings: WeatherScoringSettings | null) => {
+    setWeatherSettings(settings);
+    // Save to localStorage for persistence
+    if (settings) {
+      localStorage.setItem("weatherScoringSettings", JSON.stringify(settings));
+    } else {
+      localStorage.removeItem("weatherScoringSettings");
+    }
   };
 
   if (isLoading) {
@@ -106,7 +135,6 @@ const WeatherDashboard = () => {
       data-testid={WeatherDashboardTestIds.mainContainer}
     >
       <Stack spacing={3} sx={styles.cardContainer}>
-        {/* Location Header with Change Button */}
         <Paper
           elevation={2}
           sx={styles.locationPaper}
@@ -129,26 +157,36 @@ const WeatherDashboard = () => {
                 {data?.location?.name}
               </Typography>
             </Stack>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<EditIcon />}
-              onClick={() => setDialogOpen(true)}
-              data-testid={WeatherDashboardTestIds.changeLocationButton}
-            >
-              Change Location
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<EditIcon />}
+                onClick={() => setDialogOpen(true)}
+                data-testid={WeatherDashboardTestIds.changeLocationButton}
+              >
+                Change Location
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SettingsIcon />}
+                onClick={() => setSettingsOpen(true)}
+                data-testid="weather-settings-button"
+              >
+                Weather Settings
+              </Button>
+            </Stack>
           </Stack>
         </Paper>
 
-        {/* Picnic Calendar */}
         <PicnicCalendar
           weatherData={data?.forecasts || []}
           location={location}
+          weatherSettings={weatherSettings}
           data-testid={WeatherDashboardTestIds.picnicCalendar}
         />
 
-        {/* Location Details Card */}
         <Paper
           elevation={2}
           sx={styles.detailsPaper}
@@ -193,13 +231,19 @@ const WeatherDashboard = () => {
         </Paper>
       </Stack>
 
-      {/* City Selection Dialog */}
       <CitySelectionDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSave={handleLocationChange}
         currentLocation={location}
         data-testid={WeatherDashboardTestIds.citySelectionDialog}
+      />
+
+      <WeatherSettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onSettingsChange={handleSettingsChange}
+        currentSettings={weatherSettings ?? loadSavedSettings()}
       />
     </Box>
   );

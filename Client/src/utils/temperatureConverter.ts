@@ -13,10 +13,7 @@ export const convertTemperature = (
   return `${celsius}°C`;
 }; 
 
-/**
- * Display temperature with proper fallback for undefined values
- * Shows "--" instead of "N/A" for better UI appearance
- */
+// Better UI: shows "--" instead of "N/A"
 export const displayTemperature = (
   celsius: number | undefined | null,
   unit: TemperatureUnit
@@ -30,9 +27,6 @@ export const displayTemperature = (
   return `${celsius.toFixed(1)}°C`;
 };
 
-/**
- * Display temperature range (high/low) with proper fallbacks
- */
 export const displayTemperatureRange = (
   maxCelsius: number | undefined | null,
   minCelsius: number | undefined | null,
@@ -43,9 +37,6 @@ export const displayTemperatureRange = (
   return `${maxTemp} / ${minTemp}`;
 };
 
-/**
- * Convert Celsius to display unit
- */
 export const celsiusToDisplayUnit = (
   celsius: number,
   unit: TemperatureUnit
@@ -56,9 +47,6 @@ export const celsiusToDisplayUnit = (
   return celsius;
 };
 
-/**
- * Convert from display unit back to Celsius for storage
- */
 export const displayUnitToCelsius = (
   temperature: number,
   unit: TemperatureUnit
@@ -69,9 +57,6 @@ export const displayUnitToCelsius = (
   return temperature;
 };
 
-/**
- * Get appropriate temperature ranges for sliders based on unit
- */
 export const getTemperatureSliderConfig = (unit: TemperatureUnit) => {
   if (unit === "fahrenheit") {
     return {
@@ -118,12 +103,6 @@ export const getTemperatureSliderConfig = (unit: TemperatureUnit) => {
   };
 };
 
-/**
- * Convert temperature value for calculations
- * @param {number | undefined | null} celsius - Temperature in Celsius
- * @param {TemperatureUnit} unit - Target temperature unit to convert to
- * @returns {number} Converted temperature value (returns 0 if input is undefined/null)
- */
 export const convertTemperatureValue = (
   celsius: number | undefined | null,
   unit: TemperatureUnit

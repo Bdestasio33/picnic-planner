@@ -14,15 +14,18 @@ namespace PicnicPlanner.Api.Infrastructure.ExternalServices;
 public class OpenMeteoWeatherService : IWeatherService
 {
     private readonly HttpClient _httpClient;
+    private readonly IWeatherScoringService? _scoringService;
     private const string BaseUrl = "https://api.open-meteo.com/v1";
 
     /// <summary>
     /// Initializes a new Open-Meteo weather service
     /// </summary>
     /// <param name="httpClient">HTTP client for API requests</param>
-    public OpenMeteoWeatherService(HttpClient httpClient)
+    /// <param name="scoringService">Optional weather scoring service for condition assessment</param>
+    public OpenMeteoWeatherService(HttpClient httpClient, IWeatherScoringService? scoringService = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _scoringService = scoringService;
     }
 
     /// <summary>
@@ -209,7 +212,7 @@ public class OpenMeteoWeatherService : IWeatherService
     /// <summary>
     /// Parses forecast data from Open-Meteo API response
     /// </summary>
-    private static IEnumerable<WeatherForecast> ParseForecastData(OpenMeteoDailyData daily)
+    private IEnumerable<WeatherForecast> ParseForecastData(OpenMeteoDailyData daily)
     {
         for (int i = 0; i < daily.Time.Length; i++)
         {
@@ -233,7 +236,8 @@ public class OpenMeteoWeatherService : IWeatherService
                 precipSum,
                 humidity,
                 windSpeed,
-                windDirection
+                windDirection,
+                _scoringService
             );
         }
     }

@@ -8,7 +8,6 @@ import WeatherDashboard, {
 
 import type { WeatherForecastResponseDto } from "../../types";
 
-// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -23,13 +22,11 @@ Object.defineProperty(window, "localStorage", {
   writable: true,
 });
 
-// Mock the weather API hook
 vi.mock("../../hooks/weather/weather");
 
 import { useGetApiWeatherForecast } from "../../hooks/weather/weather";
 const mockUseGetApiWeatherForecast = vi.mocked(useGetApiWeatherForecast) as any;
 
-// Mock the PicnicCalendar component
 vi.mock("../../components/PicnicCalendar", () => ({
   default: ({ location }: any) => (
     <div data-testid="picnic-calendar">
@@ -38,7 +35,6 @@ vi.mock("../../components/PicnicCalendar", () => ({
   ),
 }));
 
-// Mock the CitySelectionDialog component
 vi.mock("../../components/CitySelectionDialog", () => ({
   default: ({ open, onClose, onSave }: any) =>
     open ? (
@@ -55,7 +51,6 @@ vi.mock("../../components/CitySelectionDialog", () => ({
     ) : null,
 }));
 
-// Mock theme for Material UI components
 const theme = createTheme();
 
 // Helper component to wrap WeatherDashboard with theme

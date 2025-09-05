@@ -1,16 +1,12 @@
 using Microsoft.Extensions.Caching.Memory;
 using PicnicPlanner.Api.Domain.Interfaces;
+using PicnicPlanner.Api.Domain.Services.WeatherScoring;
 using PicnicPlanner.Api.Infrastructure.ExternalServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
-
-// Register MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-
-// Configure API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -21,7 +17,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Weather API for picnic planning using Open-Meteo data"
     });
 
-    // Enable XML documentation
+    // Include XML docs for API documentation
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
@@ -30,10 +26,7 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Add memory caching services
 builder.Services.AddMemoryCache();
-
-// Configure HTTP client for weather service (inner service)
 builder.Services.AddHttpClient<OpenMeteoWeatherService>(client =>
 {
     client.BaseAddress = new Uri("https://api.open-meteo.com/");
@@ -41,12 +34,13 @@ builder.Services.AddHttpClient<OpenMeteoWeatherService>(client =>
     client.DefaultRequestHeaders.Add("User-Agent", "PicnicPlanner/1.0");
 });
 
-// Register the cached weather service decorator
+// Use decorator pattern: cached service wraps OpenMeteo service
 builder.Services.AddScoped<IWeatherService, CachedWeatherService>(serviceProvider =>
 {
     var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient(nameof(OpenMeteoWeatherService));
-    var openMeteoService = new OpenMeteoWeatherService(httpClient);
+    var scoringService = serviceProvider.GetRequiredService<IWeatherScoringService>();
+    var openMeteoService = new OpenMeteoWeatherService(httpClient, scoringService);
 
     var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
     var logger = serviceProvider.GetRequiredService<ILogger<CachedWeatherService>>();
@@ -54,7 +48,6 @@ builder.Services.AddScoped<IWeatherService, CachedWeatherService>(serviceProvide
     return new CachedWeatherService(openMeteoService, memoryCache, logger);
 });
 
-// Configure HTTP client for geocoding service
 builder.Services.AddHttpClient<IGeocodeService, OpenMeteoGeocodeService>(client =>
 {
     client.BaseAddress = new Uri("https://geocoding-api.open-meteo.com/");
@@ -62,14 +55,32 @@ builder.Services.AddHttpClient<IGeocodeService, OpenMeteoGeocodeService>(client 
     client.DefaultRequestHeaders.Add("User-Agent", "PicnicPlanner/1.0");
 });
 
-// Application handlers are automatically registered by MediatR
+// Configure weather scoring services
+builder.Services.AddSingleton<IWeatherScoringService>(serviceProvider =>
+{
+    // Read scoring strategy from configuration, default to "Default"
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var strategyName = configuration.GetValue<string>("WeatherScoring:Strategy") ?? "Default";
 
-// Configure CORS for frontend integration
+    if (!Enum.TryParse<WeatherScoringStrategy>(strategyName, true, out var strategy))
+    {
+        strategy = WeatherScoringStrategy.Default;
+    }
+
+    return strategy switch
+    {
+        WeatherScoringStrategy.Conservative => ScoringStrategyFactory.CreateConservativeStrategy(),
+        WeatherScoringStrategy.Relaxed => ScoringStrategyFactory.CreateRelaxedStrategy(),
+        WeatherScoringStrategy.TemperatureFocused => ScoringStrategyFactory.CreateTemperatureFocusedStrategy(),
+        _ => ScoringStrategyFactory.CreateDefaultStrategy()
+    };
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin() // Allow all origins for development
+        policy.AllowAnyOrigin() // Development only - restrict in production
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -77,31 +88,67 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// Enable Swagger in all environments for API documentation
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Picnic Planner Weather API v1");
-    c.RoutePrefix = string.Empty; // Serve Swagger UI at root
+    c.RoutePrefix = string.Empty; // Serve at root
     c.DocumentTitle = "Picnic Planner Weather API";
 });
 
 app.UseHttpsRedirection();
 
-// Enable CORS
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Add health check endpoint
 app.MapGet("/health", () => Results.Ok(new
 {
     Status = "Healthy",
     Timestamp = DateTime.UtcNow,
     Service = "Picnic Planner Weather API"
 }));
+
+// Add a demo endpoint to showcase the modular scoring system
+app.MapGet("/demo/scoring", () =>
+{
+    var defaultStrategy = ScoringStrategyFactory.CreateDefaultStrategy();
+    var conservativeStrategy = ScoringStrategyFactory.CreateConservativeStrategy();
+    var relaxedStrategy = ScoringStrategyFactory.CreateRelaxedStrategy();
+
+    var sampleParams = new WeatherScoringParameters
+    {
+        MaxTemperature = 24m,
+        MinTemperature = 18m,
+        PrecipitationChance = 15m,
+        PrecipitationAmount = 2m,
+        WindSpeed = 12m,
+        Humidity = 55m
+    };
+
+    var defaultResult = defaultStrategy.CalculateOverallScore(sampleParams);
+    var conservativeResult = conservativeStrategy.CalculateOverallScore(sampleParams);
+    var relaxedResult = relaxedStrategy.CalculateOverallScore(sampleParams);
+
+    return Results.Ok(new
+    {
+        WeatherData = new
+        {
+            Temperature = $"{sampleParams.MinTemperature}°C - {sampleParams.MaxTemperature}°C",
+            PrecipitationChance = $"{sampleParams.PrecipitationChance}%",
+            PrecipitationAmount = $"{sampleParams.PrecipitationAmount}mm",
+            WindSpeed = $"{sampleParams.WindSpeed} km/h",
+            Humidity = $"{sampleParams.Humidity}%"
+        },
+        ScoringResults = new
+        {
+            Default = new { Score = defaultResult.Score, Assessment = defaultResult.Explanation, Reasons = defaultResult.Reasons },
+            Conservative = new { Score = conservativeResult.Score, Assessment = conservativeResult.Explanation, Reasons = conservativeResult.Reasons },
+            Relaxed = new { Score = relaxedResult.Score, Assessment = relaxedResult.Explanation, Reasons = relaxedResult.Reasons }
+        }
+    });
+});
 
 app.Run();

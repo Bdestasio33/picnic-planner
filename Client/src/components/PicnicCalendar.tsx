@@ -9,6 +9,7 @@ import dayjs, { Dayjs } from "dayjs";
 import type { LocationInfo, WeatherForecastDto } from "../types";
 import { getConditionColor } from "../utils/conditionColors";
 import { WeatherDetailDialog } from "./WeatherDetailDialog";
+import type { WeatherScoringSettings } from "./WeatherSettingsDialog";
 
 interface DayData {
   forecast: WeatherForecastDto;
@@ -18,6 +19,7 @@ interface DayData {
 interface PicnicCalendarProps {
   weatherData: WeatherForecastDto[];
   location: LocationInfo;
+  weatherSettings?: WeatherScoringSettings | null;
 }
 
 interface CalendarDayProps extends PickersDayProps {
@@ -25,11 +27,6 @@ interface CalendarDayProps extends PickersDayProps {
   picnicColor?: string;
 }
 
-/**
- * A component that displays a day in the calendar with custom colors for picnic outlook.
- *
- * @param {CalendarDayProps} props
- */
 const CalendarDay = (props: CalendarDayProps) => {
   const {
     weatherData,
@@ -43,7 +40,6 @@ const CalendarDay = (props: CalendarDayProps) => {
   } = props;
   const theme = useTheme();
 
-  // Display color of the condition of a picnic day (red, yellow, green)
   const dayStyle = picnicColor
     ? {
         backgroundColor: picnicColor,
@@ -74,32 +70,81 @@ const CalendarDay = (props: CalendarDayProps) => {
   );
 };
 
-/**
- * A component that displays a calendar of weather data.
- *
- * @param {PicnicCalendarProps} props
- */
-const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
+const PicnicCalendar = ({
+  weatherData,
+  location,
+  weatherSettings,
+}: PicnicCalendarProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  // Create a map of date string to weather data for fast lookup
+  // Function to recalculate weather condition based on custom settings
+  const recalculateCondition = (
+    forecast: WeatherForecastDto
+  ): WeatherForecastDto => {
+    // Use default reasonable limits if no custom settings
+    const limits = weatherSettings || {
+      minTemperature: 10, // More lenient than API default
+      maxTemperature: 35, // More lenient than API default
+      maxWindSpeed: 30, // More lenient than API default
+      maxPrecipitationChance: 40, // More lenient than API default
+    };
+
+    // Simple client-side scoring using limits
+    const maxTemp = forecast.maxTemperature ?? 20;
+    const minTemp = forecast.minTemperature ?? 15;
+    const avgTemp = (maxTemp + minTemp) / 2;
+
+    const tempOk =
+      avgTemp >= limits.minTemperature && avgTemp <= limits.maxTemperature;
+    const windOk = (forecast.windSpeed || 0) <= limits.maxWindSpeed;
+    const precipOk =
+      (forecast.precipitationChance ?? 0) <= limits.maxPrecipitationChance;
+
+    let conditionType = "poor";
+    let description = "Poor picnic conditions";
+    let score = 35;
+
+    if (tempOk && windOk && precipOk) {
+      conditionType = "ideal";
+      description = "Excellent picnic conditions!";
+      score = 85;
+    } else if (tempOk && (windOk || precipOk)) {
+      conditionType = "fair";
+      description = "Good picnic conditions with minor concerns";
+      score = 65;
+    } else if (tempOk || windOk || precipOk) {
+      conditionType = "fair";
+      description = "Acceptable picnic conditions";
+      score = 55;
+    }
+
+    return {
+      ...forecast,
+      condition: {
+        ...forecast.condition,
+        type: conditionType,
+        description,
+        score,
+      },
+    };
+  };
+
   const weatherMap = useMemo(() => {
     const map: { [key: string]: DayData } = {};
     weatherData.forEach((forecast) => {
+      const recalculatedForecast = recalculateCondition(forecast);
       const dateKey = dayjs(forecast.date).format("YYYY-MM-DD");
       map[dateKey] = {
-        forecast,
-        // Use API-provided condition colors
-        color: getConditionColor(forecast.condition?.type),
+        forecast: recalculatedForecast,
+        color: getConditionColor(recalculatedForecast.condition?.type),
       };
     });
     return map;
-  }, [weatherData]);
+  }, [weatherData, weatherSettings]);
 
-  // Find the selected forecast data
   const selectedForecast = useMemo(() => {
     if (!selectedDate) return null;
     const dateKey = selectedDate.format("YYYY-MM-DD");
@@ -120,7 +165,6 @@ const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
     setSelectedDate(null);
   };
 
-  // Calculate date range (today + 13 days = 14 days total)
   const today = dayjs();
   const maxDate = today.add(13, "day");
 
@@ -153,7 +197,6 @@ const PicnicCalendar = ({ weatherData, location }: PicnicCalendarProps) => {
         />
       </LocalizationProvider>
 
-      {/* Weather Detail Dialog */}
       <WeatherDetailDialog
         dialogOpen={dialogOpen}
         handleCloseDialog={handleCloseDialog}
