@@ -30,10 +30,10 @@ export interface WeatherScoringSettings {
 }
 
 const defaultSettings: WeatherScoringSettings = {
-  minTemperature: 15, // API's AcceptableMinTemp
-  maxTemperature: 30, // API's AcceptableMaxTemp
-  maxWindSpeed: 25, // API's ModerateWindMaxSpeed
-  maxPrecipitationChance: 30, // API's AcceptableMaxChance
+  minTemperature: 15,
+  maxTemperature: 30,
+  maxWindSpeed: 25,
+  maxPrecipitationChance: 30,
 };
 
 const WeatherSettingsDialog: React.FC<WeatherSettingsDialogProps> = ({
@@ -60,7 +60,7 @@ const WeatherSettingsDialog: React.FC<WeatherSettingsDialogProps> = ({
   };
 
   const handleReset = () => {
-    onSettingsChange(null); // Clear custom settings
+    onSettingsChange(null);
     onClose();
   };
 

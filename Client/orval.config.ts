@@ -3,7 +3,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   'picnic-planner-api': {
     input: {
-      target: 'http://localhost:5000/swagger/v1/swagger.json',
+      target: 'http://localhost:5001/swagger/v1/swagger.json',
     },
     output: {
       mode: 'tags-split',
@@ -25,7 +25,7 @@ export default defineConfig({
   },
   'picnic-planner-zod': {
     input: {
-      target: 'http://localhost:5000/swagger/v1/swagger.json',
+      target: 'http://localhost:5001/swagger/v1/swagger.json',
     },
     output: {
       mode: 'tags-split',

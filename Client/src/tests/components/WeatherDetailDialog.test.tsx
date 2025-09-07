@@ -11,7 +11,6 @@ import {
 } from "../../components/WeatherDetailDialog";
 import type { LocationInfo, WeatherForecastDto } from "../../types";
 
-// Mock the PicnicSuitabilityIndicator component
 vi.mock("../../components/PicnicSuitabilityIndicator", () => ({
   default: ({ condition, showDetails }: any) => (
     <div data-testid="picnic-suitability-indicator">
@@ -21,7 +20,6 @@ vi.mock("../../components/PicnicSuitabilityIndicator", () => ({
   ),
 }));
 
-// Mock the HistoricalWeatherTable component
 vi.mock("../../components/HistoricalWeatherTable", () => ({
   default: ({ location, date, temperatureUnit, yearsBack }: any) => (
     <div data-testid="historical-weather-table">
@@ -31,10 +29,8 @@ vi.mock("../../components/HistoricalWeatherTable", () => ({
   ),
 }));
 
-// Mock theme for Material UI components
 const theme = createTheme();
 
-// Helper component to wrap with providers
 const WeatherDetailDialogWrapper = (props: any) => (
   <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -108,21 +104,19 @@ describe("WeatherDetailDialog", () => {
 
     expect(screen.getByText("Weather Details")).toBeInTheDocument();
     expect(screen.getByText("Temperature")).toBeInTheDocument();
-    expect(screen.getByText("30%")).toBeInTheDocument(); // precipitation
-    expect(screen.getByText("12 km/h")).toBeInTheDocument(); // wind speed
-    expect(screen.getByText("65%")).toBeInTheDocument(); // humidity
+    expect(screen.getByText("30%")).toBeInTheDocument();
+    expect(screen.getByText("12 km/h")).toBeInTheDocument();
+    expect(screen.getByText("65%")).toBeInTheDocument();
   });
 
   it("toggles temperature units", async () => {
     const user = userEvent.setup();
     render(<WeatherDetailDialogWrapper {...defaultProps} />);
 
-    // Should start with Celsius
     expect(
       screen.getByTestId(WeatherDetailDialogTestIds.celsiusButton)
     ).toHaveAttribute("aria-pressed", "true");
 
-    // Click Fahrenheit
     await user.click(
       screen.getByTestId(WeatherDetailDialogTestIds.fahrenheitButton)
     );
@@ -193,7 +187,6 @@ describe("WeatherDetailDialog", () => {
 
     const dialog = screen.getByTestId(WeatherDetailDialogTestIds.dialog);
     expect(dialog).toBeInTheDocument();
-    // Dialog should be fullscreen on mobile
   });
 
   it("handles missing forecast data gracefully", () => {
@@ -205,7 +198,6 @@ describe("WeatherDetailDialog", () => {
       screen.getByTestId(WeatherDetailDialogTestIds.dialog)
     ).toBeInTheDocument();
     expect(screen.getByText("Monday, January 15, 2024")).toBeInTheDocument();
-    // Should not crash when forecast is null
   });
 
   it("displays correct date format", () => {
@@ -235,7 +227,6 @@ describe("WeatherDetailDialog", () => {
       />
     );
 
-    // Check for zero values in specific containers
     const precipitationItem = screen.getByTestId(
       WeatherDetailDialogTestIds.precipitationItem
     );

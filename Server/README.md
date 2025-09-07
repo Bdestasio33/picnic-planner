@@ -42,7 +42,7 @@ Server/
 
 ## 📡 API Endpoints
 
-### Base URL: `https://localhost:5000/api/weather`
+### Base URL: `https://localhost:5001/api/weather`
 
 The API provides three main endpoints for weather data retrieval. For detailed parameter specifications, request/response schemas, and interactive testing, visit the Swagger UI documentation.
 
@@ -74,9 +74,9 @@ The API provides three main endpoints for weather data retrieval. For detailed p
    ```
 
 4. **Access the API:**
-   - API: `https://localhost:5000`
-   - Swagger UI: `https://localhost:5000` (for detailed API documentation)
-   - Health Check: `https://localhost:5000/health`
+   - API: `https://localhost:5001`
+   - Swagger UI: `https://localhost:5001` (for detailed API documentation)
+   - Health Check: `https://localhost:5001/health`
 
 ### Development Commands
 
@@ -169,7 +169,7 @@ The caching layer is completely transparent to the application logic and can be 
 ```bash
 # Development
 ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=https://localhost:5000;http://localhost:5000
+ASPNETCORE_URLS=https://localhost:5001;http://localhost:5001
 
 # Production
 ASPNETCORE_ENVIRONMENT=Production
@@ -202,21 +202,21 @@ Configured for frontend development on:
 
 ```bash
 # Get 14-day forecast for New York
-curl "https://localhost:5000/api/weather/forecast?city=New%20York&state=NY&country=USA"
+curl "https://localhost:5001/api/weather/forecast?city=New%20York&state=NY&country=USA"
 
 # Get historical data for July 17th in Los Angeles
-curl "https://localhost:5000/api/weather/historical?city=Los%20Angeles&state=CA&country=USA&date=2024-07-17"
+curl "https://localhost:5001/api/weather/historical?city=Los%20Angeles&state=CA&country=USA&date=2024-07-17"
 
 # Get combined data for Chicago
-curl "https://localhost:5000/api/weather/combined?city=Chicago&state=IL&country=USA&date=2024-07-17"
+curl "https://localhost:5001/api/weather/combined?city=Chicago&state=IL&country=USA&date=2024-07-17"
 
 # Health check
-curl "https://localhost:5000/health"
+curl "https://localhost:5001/health"
 ```
 
 ### Using Swagger UI:
 
-1. Navigate to `https://localhost:5000`
+1. Navigate to `https://localhost:5001`
 2. Explore and test endpoints interactively
 3. View detailed API documentation with request/response schemas
 
@@ -227,7 +227,7 @@ The API is configured with CORS to work seamlessly with the React frontend:
 ```typescript
 // Example frontend integration
 const forecast = await fetch(
-  `https://localhost:5000/api/weather/forecast?city=${encodeURIComponent(
+  `https://localhost:5001/api/weather/forecast?city=${encodeURIComponent(
     city
   )}&state=${state}&country=${country}`
 );
@@ -235,7 +235,7 @@ const data = await forecast.json();
 
 // Example with historical data
 const historical = await fetch(
-  `https://localhost:5000/api/weather/historical?city=${encodeURIComponent(
+  `https://localhost:5001/api/weather/historical?city=${encodeURIComponent(
     city
   )}&state=${state}&country=${country}&date=2024-07-17`
 );

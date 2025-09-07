@@ -128,7 +128,7 @@ The `orval.config.ts` file configures two outputs:
 
 Both configurations:
 
-- Pull from `http://localhost:5000/swagger/v1/swagger.json`
+- Pull from `http://localhost:5001/swagger/v1/swagger.json`
 - Auto-format generated code with Prettier
 - Support tags-split mode for organized file structure
 

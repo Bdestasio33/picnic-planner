@@ -136,3 +136,120 @@ export function useGetHealth<
 
   return query;
 }
+
+export const getDemoScoring = (signal?: AbortSignal) => {
+  return customInstance<void>({ url: `/demo/scoring`, method: "GET", signal });
+};
+
+export const getGetDemoScoringQueryKey = () => {
+  return [`/demo/scoring`] as const;
+};
+
+export const getGetDemoScoringQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDemoScoring>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getDemoScoring>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDemoScoringQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemoScoring>>> = ({
+    signal,
+  }) => getDemoScoring(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDemoScoring>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetDemoScoringQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDemoScoring>>
+>;
+export type GetDemoScoringQueryError = unknown;
+
+export function useGetDemoScoring<
+  TData = Awaited<ReturnType<typeof getDemoScoring>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDemoScoring>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoScoring>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoScoring>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetDemoScoring<
+  TData = Awaited<ReturnType<typeof getDemoScoring>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDemoScoring>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoScoring>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoScoring>>
+        >,
+        "initialData"
+      >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetDemoScoring<
+  TData = Awaited<ReturnType<typeof getDemoScoring>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDemoScoring>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetDemoScoring<
+  TData = Awaited<ReturnType<typeof getDemoScoring>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getDemoScoring>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetDemoScoringQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

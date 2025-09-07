@@ -86,10 +86,10 @@ const PicnicCalendar = ({
   ): WeatherForecastDto => {
     // Use default reasonable limits if no custom settings
     const limits = weatherSettings || {
-      minTemperature: 10, // More lenient than API default
-      maxTemperature: 35, // More lenient than API default
-      maxWindSpeed: 30, // More lenient than API default
-      maxPrecipitationChance: 40, // More lenient than API default
+      minTemperature: 10,
+      maxTemperature: 35,
+      maxWindSpeed: 30,
+      maxPrecipitationChance: 40,
     };
 
     // Simple client-side scoring using limits
